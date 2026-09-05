@@ -193,7 +193,7 @@ export const useFootballGame = () => {
             const startTime = audioContext.currentTime;
             const baseFrequency =
                 type === "player" ? 210 : type === "goal" ? 165 : 110;
-            const volume = type === "player" ? 0.08 : type === "goal" ? 0.06 : 0.04;
+            const volume = type === "player" ? 0.16 : type === "goal" ? 0.12 : 0.08;
 
             const bodyOsc = audioContext.createOscillator();
             const bodyGain = audioContext.createGain();
