@@ -14,7 +14,7 @@ export const FailModal = ({ score, onRetry }: FailModalProps) => (
                     Retry
                 </button>
                 <a
-                    href="https://fr.fiverr.com/seller_dashboard"
+                    href="https://akai-labs.dev"
                     target="_blank"
                     rel="noreferrer"
                     className="fail-modal-button fail-modal-secondary"
