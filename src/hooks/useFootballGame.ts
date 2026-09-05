@@ -27,6 +27,9 @@ const clamp = (value: number, min: number, max: number) =>
 const PLAYER_WIDTH = 96;
 const PLAYER_HEIGHT = 122;
 const JOYSTICK_MOVE_SPEED = 10;
+const BALL_ACCELERATION = 0.003;
+const MAX_BALL_SPEED = 7;
+const PLAYER_SHOT_SPEED = 5.8;
 
 export const useFootballGame = () => {
     const fieldRef = useRef<HTMLDivElement | null>(null);
@@ -124,7 +127,7 @@ export const useFootballGame = () => {
                 const angle =
                     (Math.random() - 0.5) * 2.1 +
                     (direction === "right" ? 0.2 : -0.2);
-                const speed = 2.8 + Math.random() * 2.5;
+                const speed = 2.5 + Math.random() * 2.2;
 
                 ballRef.current = {
                     x: centerX,
@@ -133,7 +136,7 @@ export const useFootballGame = () => {
                         Math.cos(angle) *
                         speed *
                         (direction === "right" ? 1 : -1),
-                    vy: Math.sin(angle) * (2.8 + Math.random() * 2.2),
+                    vy: Math.sin(angle) * (2.5 + Math.random() * 1.8),
                     radius: 16,
                 };
                 setBall({ ...ballRef.current });
@@ -265,7 +268,7 @@ export const useFootballGame = () => {
 
         const impactOffset = ballState.y - (playerBox.y + playerBox.height / 2);
 
-        ballRef.current.vx = 6.2;
+        ballRef.current.vx = PLAYER_SHOT_SPEED;
         ballRef.current.vy = impactOffset * 0.14;
         hasBeenShotRef.current = true;
         playBounceSound("player");
@@ -438,10 +441,17 @@ export const useFootballGame = () => {
             const height = field.clientHeight;
             let { x, y, vx, vy } = ballRef.current;
             const { radius } = ballRef.current;
-            const acceleration = 0.01;
+            const acceleration = BALL_ACCELERATION;
 
-            const nextVx = vx * (1 + acceleration);
-            const nextVy = vy * (1 + acceleration);
+            let nextVx = vx * (1 + acceleration);
+            let nextVy = vy * (1 + acceleration);
+            const nextSpeed = Math.hypot(nextVx, nextVy);
+
+            if (nextSpeed > MAX_BALL_SPEED) {
+                const speedRatio = MAX_BALL_SPEED / nextSpeed;
+                nextVx *= speedRatio;
+                nextVy *= speedRatio;
+            }
 
             x += nextVx;
             y += nextVy;
