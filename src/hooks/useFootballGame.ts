@@ -459,8 +459,9 @@ export const useFootballGame = () => {
             vx = nextVx;
             vy = nextVy;
 
-            const rightGoalTop = height * 0.28 + 22;
-            const rightGoalBottom = height * 0.72 - 22;
+            const goalPostInset = 4;
+            const rightGoalTop = height * 0.37 + radius + goalPostInset;
+            const rightGoalBottom = height * 0.63 - radius - goalPostInset;
             const rightGoalLine = width - 10;
             const goalInnerLeft = width - 120;
             const ballPadding = radius + 10;
