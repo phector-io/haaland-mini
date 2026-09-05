@@ -26,6 +26,7 @@ const clamp = (value: number, min: number, max: number) =>
 
 const PLAYER_WIDTH = 96;
 const PLAYER_HEIGHT = 122;
+const JOYSTICK_MOVE_SPEED = 10;
 
 export const useFootballGame = () => {
     const fieldRef = useRef<HTMLDivElement | null>(null);
@@ -307,9 +308,8 @@ export const useFootballGame = () => {
 
             joystickVectorRef.current = { x: normalizedX, y: normalizedY };
             setJoystick({ x: clampedX, y: clampedY, active: true });
-            movePlayer(normalizedX * 12, normalizedY * 12);
         },
-        [movePlayer],
+        [],
     );
 
     const handlePlayerPointerDown = useCallback(
@@ -424,7 +424,10 @@ export const useFootballGame = () => {
                 (keyboardStateRef.current.up ? 1 : 0);
 
             if (joystickX !== 0 || joystickY !== 0) {
-                movePlayer(joystickX * 18, joystickY * 18);
+                movePlayer(
+                    joystickX * JOYSTICK_MOVE_SPEED,
+                    joystickY * JOYSTICK_MOVE_SPEED,
+                );
             }
 
             if (keyboardX !== 0 || keyboardY !== 0) {
