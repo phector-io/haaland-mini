@@ -30,6 +30,13 @@ const JOYSTICK_MOVE_SPEED = 10;
 const BALL_ACCELERATION = 0.003;
 const MAX_BALL_SPEED = 7;
 const PLAYER_SHOT_SPEED = 5.8;
+const COMMENTARY_INTERVAL = 3200;
+const commentaryMessages = [
+    "Watch the ball!",
+    "Find the gap!",
+    "Keep moving!",
+    "Stay focused!",
+];
 
 export const useFootballGame = () => {
     const fieldRef = useRef<HTMLDivElement | null>(null);
@@ -47,6 +54,9 @@ export const useFootballGame = () => {
         height: PLAYER_HEIGHT,
     });
     const hasBeenShotRef = useRef(false);
+    const commentaryIndexRef = useRef(0);
+    const lastCommentaryAtRef = useRef(0);
+    const messageLockUntilRef = useRef(0);
     const isDraggingRef = useRef(false);
     const respawnTimeoutRef = useRef<number | null>(null);
     const goalSpeechTimeoutRef = useRef<number | null>(null);
@@ -116,6 +126,8 @@ export const useFootballGame = () => {
             }
 
             hasBeenShotRef.current = false;
+            lastCommentaryAtRef.current = Date.now();
+            messageLockUntilRef.current = Date.now() + 2200;
             setBall({ ...ballRef.current });
             setMessage(
                 direction === "right"
@@ -237,6 +249,7 @@ export const useFootballGame = () => {
         };
         setBall({ ...ballRef.current });
         setMessage("Fail! Retry");
+        messageLockUntilRef.current = Number.MAX_SAFE_INTEGER;
     }, []);
 
     const triggerGoalSpeech = useCallback(() => {
@@ -271,6 +284,8 @@ export const useFootballGame = () => {
         ballRef.current.vx = PLAYER_SHOT_SPEED;
         ballRef.current.vy = impactOffset * 0.14;
         hasBeenShotRef.current = true;
+        lastCommentaryAtRef.current = Date.now();
+        messageLockUntilRef.current = Date.now() + 1800;
         playBounceSound("player");
         setMessage("Haaland shoots!");
         return true;
@@ -367,6 +382,24 @@ export const useFootballGame = () => {
         window.addEventListener("resize", updatePointerMode);
 
         return () => window.removeEventListener("resize", updatePointerMode);
+    }, []);
+
+    useEffect(() => {
+        const commentaryIntervalId = window.setInterval(() => {
+            if (
+                ballRef.current.x < 0 ||
+                Date.now() < messageLockUntilRef.current
+            ) {
+                return;
+            }
+
+            setMessage(commentaryMessages[commentaryIndexRef.current]);
+            commentaryIndexRef.current =
+                (commentaryIndexRef.current + 1) % commentaryMessages.length;
+            lastCommentaryAtRef.current = Date.now();
+        }, COMMENTARY_INTERVAL);
+
+        return () => window.clearInterval(commentaryIntervalId);
     }, []);
 
     useEffect(() => {
@@ -489,6 +522,8 @@ export const useFootballGame = () => {
                 playBounceSound("goal");
                 triggerGoalSpeech();
                 setMessage("Goal! Haaland scores");
+                lastCommentaryAtRef.current = Date.now();
+                messageLockUntilRef.current = Date.now() + 2200;
             } else if (!isInsideGoalOpening) {
                 goalWindowRef.current = false;
             }
