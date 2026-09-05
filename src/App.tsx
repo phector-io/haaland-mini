@@ -86,7 +86,7 @@ function App() {
                                 <div
                                     className="joystick-knob"
                                     style={{
-                                        transform: `translate(${joystick.x}px, ${joystick.y}px)`,
+                                        transform: `translate(calc(-50% + ${joystick.x}px), calc(-50% + ${joystick.y}px))`,
                                     }}
                                 />
                             </div>
